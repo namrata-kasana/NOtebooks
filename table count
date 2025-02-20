@@ -1,0 +1,26 @@
+// List of table names
+val tables = List("table1", "table2", "table3")  // Add all your table names here
+
+// Create an empty DataFrame to store the results
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types._
+
+val schema = StructType(Seq(
+  StructField("table_name", StringType, nullable = false),
+  StructField("row_count", LongType, nullable = false)
+))
+
+// Initialize an empty list to store the results
+var resultRows = List[Row]()
+
+// Loop through the tables and get their row count
+tables.foreach { table =>
+  val count = spark.sql(s"SELECT COUNT(*) AS row_count FROM $table").collect()(0)(0)
+  resultRows :+= Row(table, count)
+}
+
+// Convert the results into a DataFrame
+val resultDF = spark.createDataFrame(spark.sparkContext.parallelize(resultRows), schema)
+
+// Show the result in a tabular format
+resultDF.show()
