@@ -1,0 +1,23 @@
+val df1 = spark.table("table1")
+val df2 = spark.table("table2")
+
+// Get the schema of both tables (list of columns and their data types)
+val schema1 = df1.schema
+val schema2 = df2.schema
+
+// Create a map of column names to data types for both tables
+val schema1Map = schema1.fields.map(f => f.name -> f.dataType).toMap
+val schema2Map = schema2.fields.map(f => f.name -> f.dataType).toMap
+
+// Find the common columns between both tables
+val commonColumns = schema1Map.keySet.intersect(schema2Map.keySet)
+
+// Compare the data types of common columns
+commonColumns.foreach { column =>
+  if (schema1Map(column) == schema2Map(column)) {
+    println(s"Column '$column' has matching data types in both tables.")
+  } else {
+    println(s"Column '$column' has different data types: " +
+            s"${schema1Map(column)} in table1 and ${schema2Map(column)} in table2.")
+  }
+}
